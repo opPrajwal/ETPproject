@@ -264,7 +264,7 @@ Authorization: Bearer <your_jwt_token>
 
 ### File Structure
 ```
-project/
+backend/
 ├── models/
 │   └── UserSchema.js              # Mongoose User schema
 ├── controllers/
