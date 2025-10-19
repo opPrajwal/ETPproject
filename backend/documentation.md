@@ -266,14 +266,14 @@ Authorization: Bearer <your_jwt_token>
 ```
 project/
 ├── models/
-│   └── User.js              # Mongoose User schema
+│   └── UserSchema.js              # Mongoose User schema
 ├── controllers/
 │   └── authController.js    # Controller functions
 ├── routes/
 │   └── authRoutes.js       # Route definitions
 ├── middleware/
 │   └── authMiddleware.js   # JWT verification
-├── app.js                   # Main server file
+├── index.js                   # Main server file
 ├── .env                     # Environment variables
 └── package.json
 ```
