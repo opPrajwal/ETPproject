@@ -8,6 +8,7 @@ function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
+    gender: "", 
   });
 
   const handleChange = (e) => {
@@ -23,14 +24,12 @@ function Signup() {
     }
 
     console.log("Signup details:", form);
-    // Add signup logic (API call or Firebase) here
   };
 
   return (
     <div className="signup-container">
       <div className="signup-card">
-        <h2>Create Account </h2>
-        {/* <p className="subtitle">Join us and get started today!</p> */}
+        <h2>Create Account</h2>
 
         <form onSubmit={handleSubmit}>
           <label>Full Name</label>
@@ -52,6 +51,18 @@ function Signup() {
             placeholder="you@example.com"
             required
           />
+
+          <label>Gender</label>
+          <select
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
 
           <label>Password</label>
           <div className="password-container">

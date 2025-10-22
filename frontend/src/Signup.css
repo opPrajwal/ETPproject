@@ -22,7 +22,7 @@ body {
   border-radius: 12px;
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
   width: 380px;
-  height: 380px;
+  height: 450px;
   text-align: center;
   transition: transform 0.3s ease;
 }
@@ -50,7 +50,7 @@ label {
   font-weight: 500;
 }
 
-input {
+input,select {
   padding: 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
