@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import "./Signup.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+
 
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate=useNavigate()
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -15,7 +20,7 @@ function Signup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
@@ -23,6 +28,13 @@ function Signup() {
       return;
     }
 
+
+    const response=await axios.post('http://localhost:5000/user/signup',form)
+    console.log(response)
+     if(response){
+      navigate('/home')
+    }
+    
     console.log("Signup details:", form);
   };
 
@@ -60,8 +72,8 @@ function Signup() {
             required
           >
             <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
           </select>
 
           <label>Password</label>

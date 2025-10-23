@@ -1,17 +1,25 @@
 import React, { useState } from "react";
 import "./login.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
-
+  const navigate=useNavigate()
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+    const response=await axios.post('http://localhost:5000/user/login',form)
+    console.log(response)
+    if(response){
+      navigate('/home')
+    }
     console.log("Login details:", form);
+
   };
 
   return (
