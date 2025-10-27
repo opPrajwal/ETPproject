@@ -32,7 +32,7 @@ function Signup() {
     const response=await axios.post('http://localhost:5000/user/signup',form)
     console.log(response)
      if(response){
-      navigate('/home')
+    navigate('/home')
     }
     
     console.log("Signup details:", form);
@@ -109,7 +109,7 @@ function Signup() {
           </button>
 
           <p className="login-text">
-            Already have an account? <a href="/login">Log In</a>
+            Already have an account? <a href="/">Log In</a>
           </p>
         </form>
       </div>
