@@ -1,60 +1,75 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./StudentDashboard.css";
-import { MessageCircle, HelpCircle, Send, Clock, CheckCircle2, User } from "lucide-react";
+import { MessageCircle, HelpCircle, Clock, CheckCircle2, User, X } from "lucide-react";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("doubts");
   const [doubts, setDoubts] = useState([]);
   const [teacherEmail, setTeacherEmail] = useState("");
-  const [chatStarted, setChatStarted] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [teachers, setTeachers] = useState([]);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+ const [messages, setMessages] = useState({}); 
+  const [inputMessage, setInputMessage] = useState("");
+  const [newDoubt, setNewDoubt] = useState("");
+  const [showDoubtInput, setShowDoubtInput] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
- const navigate = useNavigate();
-    const handleLogout = () => {
-    navigate('/Login'); 
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/login");
   };
 
-  const handleAskDoubt = () => {
-    const question = prompt("Enter your doubt:");
-    if (question && question.trim() !== "") {
-      const newDoubt = {
-        id: doubts.length + 1,
-        subject: "General",
-        question: question.trim(),
-        timestamp: "Just now",
-        status: "pending",
-      };
-      setDoubts([newDoubt, ...doubts]);
+  // ===== Doubts =====
+  const handleAskDoubt = () => setShowDoubtInput(true);
+
+  const handlePostDoubt = () => {
+    if (newDoubt.trim() === "") return;
+    const newDoubtObj = {
+      id: doubts.length + 1,
+      subject: "General",
+      question: newDoubt.trim(),
+      timestamp: "Just now",
+      status: "pending",
+    };
+    setDoubts([newDoubtObj, ...doubts]);
+    setNewDoubt("");
+    setShowDoubtInput(false);
+  };
+
+   const handleAddTeacher = () => {
+    if (teacherEmail.trim() === "") return;
+    if (!teachers.includes(teacherEmail)) {
+      setTeachers([...teachers, teacherEmail]);
+      setMessages({ ...messages, [teacherEmail]: [] });
     }
+    setTeacherEmail("");
   };
+  
 
-  const handleStartChat = () => {
-    if (teacherEmail.trim() !== "") {
-      setChatStarted(true);
-    } else {
-      alert("Please enter the teacher's email.");
-    }
-  };
-
+  
   const handleSendMessage = () => {
-    if (newMessage.trim() === "") return;
-    setMessages([...messages, { sender: "student", text: newMessage }]);
-    setNewMessage("");
+    if (!inputMessage.trim() || !selectedTeacher) return;
+    const newMsg = { text: inputMessage, sender: "student", time: new Date() };
+    setMessages({
+      ...messages,
+      [selectedTeacher]: [...messages[selectedTeacher], newMsg],
+    });
+    setInputMessage("");
   };
+
 
   return (
     <div className="student-dashboard">
       <div className="dashboard-container">
+        {/* Header */}
         <header className="dashboard-header">
           <div>
             <h1>My Dashboard</h1>
             <p>Ask doubts and chat with teachers</p>
           </div>
 
-          {/* Profile Section */}
           <div className="profile-section">
             <User
               className="profile-icon"
@@ -62,12 +77,15 @@ const StudentDashboard = () => {
             />
             {showProfile && (
               <div className="profile-dropdown">
-                <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                <button className="logout-btn" onClick={handleLogout}>
+                  Logout
+                </button>
               </div>
             )}
           </div>
         </header>
 
+        {/* Tabs */}
         <div className="tab-buttons">
           <button
             className={`tab-btn ${activeTab === "doubts" ? "active" : ""}`}
@@ -85,19 +103,32 @@ const StudentDashboard = () => {
           </button>
         </div>
 
-        {/* ===== Doubts Section ===== */}
+        {/* Doubts Section */}
         {activeTab === "doubts" && (
           <section className="doubts-section">
             <div className="doubts-header">
               <h2>Your Doubts</h2>
               <button className="ask-btn" onClick={handleAskDoubt}>
-                <HelpCircle className="icon" />
-                Ask a Question
+                <HelpCircle className="icon" /> Ask a Question
               </button>
             </div>
 
+            {showDoubtInput && (
+              <div className="ask-doubt-box">
+                <input
+                  type="text"
+                  placeholder="Type your doubt..."
+                  value={newDoubt}
+                  onChange={(e) => setNewDoubt(e.target.value)}
+                />
+                <button onClick={handlePostDoubt}>Post</button>
+              </div>
+            )}
+
             {doubts.length === 0 ? (
-              <p className="no-doubts">No doubts yet. Click “Ask a Question” to add one!</p>
+              <p className="no-doubts">
+                No doubts yet. Click “Ask a Question” to add one!
+              </p>
             ) : (
               doubts.map((doubt) => (
                 <div className="doubt-card" key={doubt.id}>
@@ -125,51 +156,95 @@ const StudentDashboard = () => {
           </section>
         )}
 
-        {/* ===== Chat Section ===== */}
-        {activeTab === "chats" && (
+       
+  {activeTab === "chats" && (
           <section className="chats-section">
-            <h2>Chats</h2>
-            {!chatStarted ? (
-              <div className="start-chat">
-                <input
-                  type="email"
-                  placeholder="Enter teacher's email..."
-                  value={teacherEmail}
-                  onChange={(e) => setTeacherEmail(e.target.value)}
-                />
-                <button onClick={handleStartChat}>Start Chat</button>
-              </div>
-            ) : (
-              <div className="chat-section">
-                <h2>Chat with: {teacherEmail}</h2>
-                <div className="chat-box">
-                  {messages.length === 0 ? (
-                    <p className="empty-chat">No messages yet. Start the conversation!</p>
-                  ) : (
-                    messages.map((msg, index) => (
-                      <div
-                        key={index}
-                        className={`message ${msg.sender === "student" ? "student-msg" : "teacher-msg"}`}
-                      >
-                        {msg.text}
-                      </div>
-                    ))
-                  )}
-                </div>
+      <div className="main-container">
+      <div className="teachers-sidebar">
+        <h2>Teachers</h2>
+        <div className="add-teacher">
+          <input
+            type="email"
+            placeholder="Enter teacher email"
+            value={teacherEmail}
+            onChange={(e) => setTeacherEmail(e.target.value)}
+          />
+          <button onClick={handleAddTeacher}>Add</button>
+        </div>
 
-                <div className="message-input">
-                  <input
-                    type="text"
-                    placeholder="Type your message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                  />
-                  <button onClick={handleSendMessage}>Send</button>
-                </div>
+        <ul className="teacher-list">
+          {teachers.map((email) => (
+            <li
+              key={email}
+              onClick={() => setSelectedTeacher(email)}
+              className={selectedTeacher === email ? "active" : ""}
+            >
+              <div className="teacher-avatar">{email.charAt(0).toUpperCase()}</div>
+              <div>
+                <strong>{email}</strong>
+                <p>Click to chat</p>
               </div>
-            )}
-          </section>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="chat-area">
+        {selectedTeacher ? (
+          <>
+            <div className="chat-header">
+              <div className="teacher-avatar large">
+                {selectedTeacher.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h3>{selectedTeacher}</h3>
+                <p>Online</p>
+              </div>
+            </div>
+
+            <div className="chat-box">
+              {messages[selectedTeacher].length === 0 ? (
+                <p className="empty-chat">
+                  Start a conversation with {selectedTeacher}
+                </p>
+              ) : (
+                messages[selectedTeacher].map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`message ${
+                      msg.sender === "student" ? "sent" : "received"
+                    }`}
+                  >
+                    <p>{msg.text}</p>
+                    <span className="time">
+                      {msg.time.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+              />
+              <button onClick={handleSendMessage}>➤</button>
+            </div>
+          </>
+        ) : (
+          <div className="empty-chat">Select or add a teacher to start chatting</div>
         )}
+      </div>
+    </div>
+    </section>
+  )}
+
       </div>
     </div>
   );
