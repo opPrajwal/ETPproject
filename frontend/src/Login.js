@@ -17,7 +17,7 @@ function Login() {
       const response=await axios.post('http://localhost:5000/user/login',form)
     
     if(response){
-      navigate('/home')
+      navigate('/student-dashboard');
     }
     console.log(response)
     console.log("Login details:", form);
