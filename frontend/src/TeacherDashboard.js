@@ -36,10 +36,19 @@ export default function TeacherDashboard(){
       {profile && (
         <div className="teacher-profile">
           <div className="profile-main">
-            <strong className="profile-name">{profile.name}</strong>
-            <div className="profile-email">{profile.email}</div>
+            <div>
+              <strong className="profile-name">{profile.name}</strong>
+              <div className="profile-email">{profile.email}</div>
+            </div>
           </div>
-          <div className="profile-subjects">Subjects: <span>{(profile.subjects||[]).join(', ') || 'None'}</span></div>
+          <div className="profile-subjects">
+            Subjects: {(profile.subjects || []).length > 0 ? 
+              profile.subjects.map((subject, index) => (
+                <span key={index}>{subject}</span>
+              )) : 
+              <span>None</span>
+            }
+          </div>
         </div>
       )}
 
@@ -52,7 +61,13 @@ export default function TeacherDashboard(){
             {chats.map(c=> (
               <li key={c._id || c.id} className="chat-item">
                 <div className="chat-title">{c.chatName || 'Chat'}</div>
-                <div className="chat-meta">Student: {c.student?.name || c.student}</div>
+                <div className="chat-meta">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  {c.student?.name || c.student}
+                </div>
               </li>
             ))}
           </ul>
