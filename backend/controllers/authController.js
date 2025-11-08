@@ -13,14 +13,19 @@ const generateToken = (id) => {
 // @access  Public
 export const signup = async (req, res) => {
     try {
-        const { name, email, password, gender } = req.body;
+        const { name, email, password, gender, typeOfUser } = req.body;
 
         // Validate input
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !typeOfUser) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide all required fields"
+                message: "Please provide all required fields: name, email, password, typeOfUser"
             });
+        }
+
+        // Validate typeOfUser
+        if (!['Student', 'Teacher'].includes(typeOfUser)) {
+            return res.status(400).json({ success: false, message: 'typeOfUser must be either "Student" or "Teacher"' });
         }
 
         // Check if user already exists
@@ -37,7 +42,8 @@ export const signup = async (req, res) => {
             name,
             email,
             password,
-            gender
+            gender,
+            typeOfUser
         });
 
         if (user) {
@@ -49,11 +55,18 @@ export const signup = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     gender: user.gender,
+                    typeOfUser: user.typeOfUser,
+                    subjects: user.subjects || [],
                     token: generateToken(user._id)
                 }
             });
         }
     } catch (error) {
+        // If Mongoose validation error, return details
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message).join('; ');
+            return res.status(400).json({ success: false, message: messages });
+        }
         res.status(500).json({
             success: false,
             message: error.message
@@ -102,6 +115,8 @@ export const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 gender: user.gender,
+                typeOfUser: user.typeOfUser,
+                subjects: user.subjects || [],
                 token: generateToken(user._id)
             }
         });
@@ -156,6 +171,10 @@ export const updateProfile = async (req, res) => {
         // Update fields
         user.name = req.body.name || user.name;
         user.gender = req.body.gender || user.gender;
+        // Update subjects (for teachers)
+        if (Array.isArray(req.body.subjects) && user.typeOfUser === 'Teacher') {
+            user.subjects = req.body.subjects.map(s => String(s).trim()).filter(Boolean);
+        }
         
         // Update email if provided and different
         if (req.body.email && req.body.email !== user.email) {

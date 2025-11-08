@@ -14,15 +14,25 @@ function Login() {
   const handleSubmit = async(e) => {
     e.preventDefault();
   try {
-      const response=await axios.post('http://localhost:5000/user/login',form)
-    
-    if(response){
-      navigate('/student-dashboard');
-    }
-    console.log(response)
-    console.log("Login details:", form);
+      const response = await axios.post('http://localhost:5000/user/login', form, { headers: { 'Content-Type': 'application/json' } });
+      if (response && response.data && response.data.success) {
+        const data = response.data.data;
+        // store token
+        if (data.token) localStorage.setItem('token', data.token);
+        // If teacher and has no subjects, route to setup
+        if (data.typeOfUser === 'Teacher' && (!data.subjects || data.subjects.length === 0)) {
+          navigate('/teacher-setup');
+          return;
+        }
+        if (data.typeOfUser === 'Teacher') navigate('/teacher-dashboard');
+        else navigate('/student-dashboard');
+      } else {
+        alert(response?.data?.message || 'Login failed');
+      }
+      console.log('Login details:', form);
   } catch (error) {
-    console.log(error)
+    const msg = error.response?.data?.message || error.message || 'Login failed';
+    alert(msg);
   }
 
   };

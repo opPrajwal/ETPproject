@@ -1,0 +1,44 @@
+/* Teacher Dashboard styles */
+.teacher-dashboard {
+  padding: 20px 24px;
+  font-family: Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  color: #111827;
+  max-width: 980px;
+  margin: 18px auto;
+}
+
+.td-header h1{
+  margin: 0 0 12px 0;
+  font-size: 1.6rem;
+}
+
+.teacher-profile{
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  margin-bottom: 18px;
+}
+
+.profile-main{
+  display:flex;align-items:center;gap:12px;margin-bottom:6px;
+}
+.profile-name{font-size:1.1rem}
+.profile-email{color:#6b7280;font-size:0.95rem}
+.profile-subjects{color:#374151;font-size:0.95rem}
+
+.teacher-chats{background:#fff;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+.teacher-chats h3{margin-top:0}
+.no-chats{color:#6b7280}
+
+.chat-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr;gap:10px}
+.chat-item{padding:10px;border-radius:8px;border:1px solid #eef2ff;background:linear-gradient(180deg,#ffffff,#fbfdff)}
+.chat-title{font-weight:600}
+.chat-meta{color:#6b7280;font-size:0.9rem}
+
+@media (min-width:900px){
+  .teacher-dashboard{padding:28px}
+  .chat-list{grid-template-columns:repeat(2,1fr)}
+}

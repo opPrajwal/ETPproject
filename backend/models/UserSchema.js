@@ -38,6 +38,12 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
 }]
+,
+    // For teachers: subjects they teach
+    subjects: [{
+        type: String,
+        trim: true
+    }]
 }, {
     timestamps: true
 });

@@ -14,6 +14,7 @@ function Signup() {
     password: "",
     confirmPassword: "",
     gender: "", 
+    typeOfUser: "Student",
   });
 
   const handleChange = (e) => {
@@ -28,11 +29,45 @@ function Signup() {
       return;
     }
 
+    if (form.password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    // Build payload that matches backend UserSchema
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+      typeOfUser: form.typeOfUser,
+      ...(form.gender ? { gender: form.gender } : {})
+    };
 
-    const response=await axios.post('http://localhost:5000/user/signup',form)
-    console.log(response)
-     if(response){
-    navigate('/home')
+    try {
+      const response = await axios.post('http://localhost:5000/user/signup', payload, { headers: { 'Content-Type': 'application/json' } });
+      if (response && response.data && response.data.success) {
+        // Optionally store token in localStorage for later requests
+        if (response.data.data && response.data.data.token) {
+          localStorage.setItem('token', response.data.data.token);
+        }
+        const data = response.data.data || {};
+        if (data.typeOfUser === 'Teacher') {
+          if (!data.subjects || data.subjects.length === 0) {
+            navigate('/teacher-setup');
+          } else {
+            navigate('/teacher-dashboard');
+          }
+        } else {
+          navigate('/student-dashboard');
+        }
+      } else {
+        const msg = response?.data?.message || 'Signup failed';
+        alert(msg);
+      }
+    } catch (err) {
+      // Show backend validation or error message
+      const msg = err.response?.data?.message || err.message || 'Signup failed';
+      alert(msg);
+      return;
     }
     
     console.log("Signup details:", form);
@@ -69,11 +104,22 @@ function Signup() {
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            required
           >
-            <option value="">Select gender</option>
+            <option value="">Prefer not to say</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <label>Account type</label>
+          <select
+            name="typeOfUser"
+            value={form.typeOfUser}
+            onChange={handleChange}
+            required
+          >
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
           </select>
 
           <label>Password</label>

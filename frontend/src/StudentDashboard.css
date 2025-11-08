@@ -117,20 +117,15 @@ justify-content: space-between;
 margin-bottom: 1rem;
 }
 
-.ask-btn {
-background-color: #4f46e5;
-color: white;
-border: none;
-border-radius: 6px;
-padding: 0.5rem 1rem;
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 0.4rem;
+.doubts-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
+/* legacy ask-btn removed; keep styles available if needed later */
 .ask-btn {
-background-color: #4338ca;
+  display: none;
 }
 
 .doubt-card {
@@ -144,6 +139,32 @@ transition: 0.3s ease;
 
 .doubt-card {
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.doubt-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doubt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.doubt-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.doubt-desc {
+  color: #374151;
+  line-height: 1.5;
+  margin: 0.25rem 0 0;
 }
 
 .subject {
@@ -356,6 +377,93 @@ width: 14px;
 
 .ask-doubt-box button:hover {
   background-color:  #6c63ff;
+}
+
+/* Create doubt form */
+.create-doubt-btn {
+  background-color: #06b6d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.create-doubt-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: #fbfbff;
+  padding: 12px;
+  border: 1px solid #eef2ff;
+  border-radius: 10px;
+}
+
+.create-doubt-form input,
+.create-doubt-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.create-doubt-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  background: white;
+}
+
+.create-doubt-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.create-doubt-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.create-doubt-actions button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.create-doubt-actions button:first-child {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.create-doubt-actions button:last-child {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+/* Focus states for accessibility */
+.ask-btn:focus,
+.create-doubt-btn:focus,
+.view-btn:focus,
+.create-doubt-form input:focus,
+.create-doubt-form textarea:focus,
+.ask-doubt-box input:focus {
+  outline: 3px solid rgba(79,70,229,0.15);
+  outline-offset: 2px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .dashboard-container { width: 100%; padding: 20px; }
+  .main-container { flex-direction: column; }
+  .teachers-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #eee; }
+  .chat-area { width: 100%; }
 }
 .main-container {
   display: flex;

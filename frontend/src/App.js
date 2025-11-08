@@ -5,14 +5,20 @@ import Signup from "./Signup";
 
 // import Home from "./pages/Home";
 import StudentDashboard from './StudentDashboard'
+import TeacherSetup from './TeacherSetup'
+import TeacherDashboard from './TeacherDashboard'
 export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Allow both "/" and "/login" to render the Login screen */}
         <Route path="/" element={<Login />} />
-        
+        <Route path="/login" element={<Login />} />
+
         <Route path="/signup" element={<Signup />} />
-         <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/teacher-setup" element={<TeacherSetup />} />
+        <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
       </Routes>
     </Router>
   );
