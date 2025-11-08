@@ -1,5 +1,6 @@
 import Doubt from '../models/DoubtSchema.js';
 import User from '../models/UserSchema.js';
+import { getGeminiReply } from '../utils/gemini.js';
 
 // GET /api/doubts
 export const getDoubts = async (req, res) => {
@@ -70,6 +71,17 @@ export const createDoubt = async (req, res) => {
 
     const doubt = new Doubt({ subject, title, description, student, teachers: teacherIds, isGroup: !!isGroup });
     await doubt.save();
+
+    // Call Gemini AI and update the doubt with the AI's reply
+    try {
+      const prompt = `A student asked a doubt in ${subject}:\nTitle: ${title}\nDescription: ${description}\n\nAs an expert teacher, provide a clear, well-formatted answer using headings, bullet points, and a summary. Use Markdown for formatting.`;
+      const aiReply = await getGeminiReply(prompt);
+      doubt.aiReply = aiReply;
+      await doubt.save();
+    } catch (aiErr) {
+      console.error('Gemini AI error (non-fatal)', aiErr);
+    }
+
     return res.status(201).json(doubt);
   } catch (err) {
     console.error('createDoubt error', err);

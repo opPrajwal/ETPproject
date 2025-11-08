@@ -35,6 +35,8 @@ const StudentDashboard = () => {
   const [newDoubtDescription, setNewDoubtDescription] = useState('');
   const [newDoubtTeacherEmail, setNewDoubtTeacherEmail] = useState('');
   const [showProfile, setShowProfile] = useState(false);
+  const [studyPlan, setStudyPlan] = useState(null);
+  const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const mountedRef = useRef(true);
 
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ const StudentDashboard = () => {
   const handleLogout = () => {
     navigate("/login");
   };
+  
 
   // ===== Doubts =====
   // Note: legacy quick "Ask a Question" removed; use Create Doubt form instead.
@@ -132,6 +135,58 @@ const StudentDashboard = () => {
     })();
   };
 
+   // ------ STUDY PLAN SECTION --------
+  const handleGenerateStudyPlan = async () => {
+    setIsLoadingPlan(true);
+
+    // Simulate backend/AI summarization based on actual user data
+    // You can enhance this logic or replace with your AI backend service
+    const doubtSummary = summarizeDoubtPatterns(doubts);
+    const chatStats = summarizeChatEngagement(messages);
+    // TODO: Insert performance/quiz/assignment data analytics
+
+    // For demo: simple recommendations
+    const demoPlan = {
+      recommendations: [
+        ...Object.keys(doubtSummary).map(subject => ({
+          subject, suggestion: `Spend extra 30 mins on ${subject} due to frequent doubts`
+        })),
+        ...(chatStats.lowEngagementSubjects || []).map(subject => ({
+          subject, suggestion: `Increase your activity in ${subject} chats`
+        })),
+        { subject: "All", suggestion: "Revise error-prone topics from past doubts this weekend" }
+      ]
+    };
+    setTimeout(() => {
+      setStudyPlan(demoPlan);
+      setIsLoadingPlan(false);
+    }, 1000); // simulate response delay
+  };
+
+  function summarizeDoubtPatterns(doubts) {
+    // Count doubts by subject
+    const out = {};
+    doubts.forEach(d => {
+      if (d.subject) out[d.subject] = (out[d.subject] || 0) + 1;
+    });
+    // Only flag subjects with 3+ doubts as "frequent"
+    return Object.fromEntries(
+      Object.entries(out).filter(([subj, count]) => count >= 3)
+    );
+  }
+
+  function summarizeChatEngagement(messages) {
+    // You could improve this via message timing/volume per chat
+    // Example: subjects with <5 messages
+    const lowEngagementSubjects = [];
+    Object.entries(messages).forEach(([chatId, msgs]) => {
+      if ((msgs || []).length < 5) {
+        lowEngagementSubjects.push(chatId);
+      }
+    });
+    return { lowEngagementSubjects };
+  }
+
   useEffect(() => {
     mountedRef.current = true;
     (async () => {
@@ -200,6 +255,12 @@ const StudentDashboard = () => {
           >
             <MessageCircle className="icon" />
             Chats
+          </button>
+
+           <button className={`tab-btn ${activeTab === "studyplan" ? "active" : ""}`}
+                  onClick={() => setActiveTab("studyplan")}>
+            <Clock className="icon" />
+            Study Plan
           </button>
         </div>
 
@@ -274,6 +335,12 @@ const StudentDashboard = () => {
                         <p className="doubt-desc">{doubt.description}</p>
                         <p className="text-sm text-gray-600">Assigned teachers: {(doubt.teachers || []).length}</p>
                         <p className="timestamp"><Clock className="icon-small" /> {doubt.createdAt || doubt.updatedAt || ''}</p>
+                        {doubt.aiReply && (
+                          <div className="ai-reply">
+                            <div className="ai-reply-label">AI Answer:</div>
+                            <div className="ai-reply-content">{doubt.aiReply}</div>
+                          </div>
+                        )}
                       </>
                     ) : doubt.chatName ? (
                       // Older chat-like doubt object
@@ -392,6 +459,24 @@ const StudentDashboard = () => {
       </div>
     </section>
   )}
+
+  {activeTab === "studyplan" && (
+          <section className="study-plan-section">
+            <h2>Your Personalized Study Plan</h2>
+            <button onClick={handleGenerateStudyPlan}
+                    disabled={isLoadingPlan}>
+              {isLoadingPlan ? "Generating..." : "Generate Study Plan"}
+            </button>
+            {studyPlan && !studyPlan.error && (
+              <ul className="study-plan-list">
+                {studyPlan.recommendations.map((item, idx) => (
+                  <li key={idx}><strong>{item.subject}:</strong> {item.suggestion}</li>
+                ))}
+              </ul>
+            )}
+            {studyPlan?.error && <p className="error">{studyPlan.error}</p>}
+          </section>
+        )}
 
       </div>
     </div>

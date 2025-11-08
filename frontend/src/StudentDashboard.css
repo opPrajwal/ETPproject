@@ -629,3 +629,67 @@ width: 14px;
   margin-top: 100px;
   font-size: 15px;
 }
+
+.study-plan-section {
+  background: #f8fbff;
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 2px 8px rgba(30, 60, 90, 0.07);
+  margin: 32px 0;
+  min-height: 280px;
+  transition: box-shadow 0.2s;
+}
+
+.study-plan-section h2 {
+  font-size: 1.7rem;
+  color: #324e7b;
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+.study-plan-section button {
+  background: #397eff;
+  color: #fff;
+  font-size: 1rem;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 26px;
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(40,100,180,0.05);
+  transition: background 0.2s;
+}
+.study-plan-section button:disabled {
+  opacity: 0.7;
+  background: #7ca6f8;
+  cursor: not-allowed;
+}
+
+.study-plan-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.study-plan-list li {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(40,60,99,0.06);
+  margin-bottom: 20px;
+  padding: 18px 16px;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.study-plan-list li strong {
+  color: #2e5ba7;
+  margin-right: 10px;
+}
+
+.study-plan-section .error {
+  color: #ff2952;
+  margin-top: 18px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
