@@ -40,11 +40,16 @@ const DoubtSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
-	// Optional field to reference the latest message/comment
-	latestMessage: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Message'
-	}
+       // Optional field to reference the latest message/comment
+       latestMessage: {
+	       type: mongoose.Schema.Types.ObjectId,
+	       ref: 'Message'
+       },
+       // AI reply from Gemini
+       aiReply: {
+	       type: String,
+	       default: ''
+       }
 }, {
 	timestamps: true
 });

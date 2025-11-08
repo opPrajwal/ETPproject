@@ -335,6 +335,12 @@ const StudentDashboard = () => {
                         <p className="doubt-desc">{doubt.description}</p>
                         <p className="text-sm text-gray-600">Assigned teachers: {(doubt.teachers || []).length}</p>
                         <p className="timestamp"><Clock className="icon-small" /> {doubt.createdAt || doubt.updatedAt || ''}</p>
+                        {doubt.aiReply && (
+                          <div className="ai-reply">
+                            <div className="ai-reply-label">AI Answer:</div>
+                            <div className="ai-reply-content">{doubt.aiReply}</div>
+                          </div>
+                        )}
                       </>
                     ) : doubt.chatName ? (
                       // Older chat-like doubt object
