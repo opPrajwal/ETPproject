@@ -1,0 +1,100 @@
+.login-selection-page {
+  font-family: "Poppins", sans-serif;
+  /* background: linear-gradient(135deg, #7b6cff, #58cfff); */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #151212;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* Page heading */
+.content h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.content p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 50px;
+}
+
+/* Cards container */
+.card-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 60px;
+}
+
+/* Card style */
+.login-card {
+  background: #e1d6e0;
+  color: #333;
+  width: 300px;
+  padding: 45px 25px;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.login-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* Icon wrapper */
+.icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+/* Student icon gradient */
+.student-icon {
+  background: linear-gradient(135deg, #7b6cff, #9b8bff);
+}
+
+/* Teacher icon gradient */
+.teacher-icon {
+  background: linear-gradient(135deg, #ff8fb1, #ff6b9b);
+}
+
+/* Emoji inside icon */
+.emoji {
+  font-size: 2.2rem;
+}
+
+/* Text below icons */
+.login-card h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.login-card p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+}
