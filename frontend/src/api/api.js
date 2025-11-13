@@ -1,137 +1,209 @@
-// Lightweight frontend API wrapper with safe fallbacks.
-// It will try to call backend endpoints under /api and return JSON.
-// If the backend isn't available, functions gracefully return mocked data so UI remains usable.
-
 import axios from 'axios';
 
-// Allow overriding the backend base URL via REACT_APP_API_BASE.
-// Defaults to http://localhost:5000 which is where the backend server typically runs.
 const ENV_BASE = (process.env.REACT_APP_API_BASE && process.env.REACT_APP_API_BASE.replace(/\/$/, ''));
 const API_ROOT = ENV_BASE ? ENV_BASE : 'http://localhost:5000';
 const BASE = `${API_ROOT}/api`;
 
-// axios-based safe fetch wrapper that accepts a fetch-like options object.
+// ---- safeFetch ----
 async function safeFetch(url, options = {}) {
   try {
+    console.log('📡 Request:', { url, options });
+    
     const method = (options.method || 'GET').toLowerCase();
-    // Merge provided headers with Authorization header from localStorage if available
-    const headers = Object.assign({}, options.headers || {});
+    const headers = { ...(options.headers || {}) };
     const token = localStorage.getItem('token');
-    if (token && !headers.Authorization && !headers.authorization) {
+    if (token && !headers.Authorization) {
       headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔑 Using token:', token.substring(0, 15) + '...');
+    } else {
+      console.warn('⚠️ No token found in localStorage');
     }
-    const data = options.body !== undefined ? options.body : options.data;
+
+    const rawData = options.body !== undefined ? options.body : options.data;
+    const shouldStringify = headers['Content-Type'] === 'application/json' && typeof rawData === 'object';
+    const data = shouldStringify ? JSON.stringify(rawData) : rawData;
+
+    console.log('📤 Sending request:', { 
+      method, 
+      url, 
+      headers: {...headers, Authorization: headers.Authorization ? 'Bearer [TOKEN]' : 'No Token'},
+      fullUrl: url
+    });
     const res = await axios({ url, method, headers, data });
+    console.log('📥 Response:', { 
+      status: res.status, 
+      statusText: res.statusText,
+      data: res.data,
+      headers: res.headers
+    });
     return res.data;
   } catch (err) {
-    // Normalize axios errors similar to fetch behavior
     if (err.response) {
-      const status = err.response.status;
-      throw new Error(`HTTP ${status}`);
+      // Log detailed error information for debugging
+      console.error('HTTP error response:', {
+        status: err.response.status,
+        data: err.response.data,
+        url,
+        config: err.config
+      });
+      throw new Error(`HTTP ${err.response.status}`);
     }
+    console.error('Network or other error:', err);
     throw err;
   }
 }
 
+// ---- Doubts ----
 export async function fetchDoubts() {
   try {
     return await safeFetch(`${BASE}/doubts`);
-  } catch (err) {
-    // Fallback: return empty array
+  } catch {
     return [];
   }
 }
 
 export async function postDoubt(payload) {
   try {
-    return await safeFetch(`${BASE}/doubts/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-    });
-  } catch (err) {
-    // Fallback: return the payload with an id and timestamp
-    return { ...payload, id: `d_${Date.now()}`, timestamp: new Date().toISOString(), status: 'pending' };
-  }
-}
-
-export async function fetchChats() {
-  try {
-    return await safeFetch(`${BASE}/chats`);
-  } catch (err) {
-    return [];
-  }
-}
-
-export async function updateProfile(payload) {
-  try {
-    return await safeFetch(`${API_ROOT}/user/profile`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-    });
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function createChat(payload) {
-  try {
-    return await safeFetch(`${BASE}/chats`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-    });
-  } catch (err) {
-    // Fallback: return a chat-like object
-    return { id: `chat_${Date.now()}`, ...payload, createdAt: new Date().toISOString() };
-  }
-}
-
-// Create a doubt (uses the DoubtSchema shape)
-export async function createDoubt(payload) {
-  try {
     return await safeFetch(`${BASE}/doubts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: payload,
     });
-  } catch (err) {
-    // Fallback: return a doubt-like chat
-    return { id: `doubt_${Date.now()}`, ...payload, createdAt: new Date().toISOString() };
+  } catch {
+    return { ...payload, id: `d_${Date.now()}`, createdAt: new Date().toISOString(), status: 'pending' };
   }
 }
 
-export async function sendMessage(chatId, payload) {
+// ✅ Alias for consistency
+export const createDoubt = postDoubt;
+
+// ---- Chats ----
+export async function getChats() {
+  console.log('🔄 Fetching chats...', { url: `${BASE}/chats/getchats` });
   try {
-    return await safeFetch(`${BASE}/chats/${chatId}/messages`, {
+    console.log('🔑 Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+    console.log('📍 API Base:', BASE);
+    const result = await safeFetch(`${BASE}/chats/getchats`);
+    console.log('📥 Raw API Response:', result);
+    if (!Array.isArray(result)) {
+      console.warn('⚠️ Chats response is not an array:', result);
+      return [];
+    }
+    return result;
+  } catch (err) {
+    console.error('❌ Error fetching chats:', err);
+    if (err.response) {
+      console.error('Backend error details:', err.response.data);
+    }
+    return [];
+  }
+}
+
+export async function createChat(payload) {
+  try {
+    const pl = { ...payload };
+    if (Array.isArray(pl.teachers) && typeof pl.teachers[0] === 'string' && pl.teachers[0].includes('@')) {
+      const users = await Promise.all(pl.teachers.map(email => fetchUserByEmail(email)));
+      pl.teachers = users.map(u => (u.data && u.data._id) || u._id || u.id).filter(Boolean);
+    }
+
+    const result = await safeFetch(`${BASE}/chats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: pl,
+    });
+    console.log('Chat created:', result);
+    return result;
+  } catch (err) {
+    console.error('Error creating chat:', err);
+    return {
+      _id: `local_${Date.now()}`,
+      chatName: payload.chatName || '',
+      teachers: payload.teachers || [],
+      isGroup: !!payload.isGroup,
+      createdAt: new Date().toISOString(),
+    };
+  }
+}
+
+// ---- Messages ----
+export async function sendMessage(chatId, payload) {
+  console.log('💬 Sending message:', { chatId, payload });
+  
+  // Validate chat ID format
+  if (!/^[0-9a-fA-F]{24}$/.test(String(chatId))) {
+    console.warn('⚠️ Invalid chat ID format, using local message:', chatId);
+    return {
+      _id: `m_${Date.now()}`,
+      chat: chatId,
+      sender: payload.sender || null,
+      content: payload.content || payload || '',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  try {
+    const message = await safeFetch(`${BASE}/chats/${chatId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: payload,
     });
+    console.log('✅ Message sent successfully:', message);
+    return message;
   } catch (err) {
-    // Fallback: echo message with id/time
-    return { id: `m_${Date.now()}`, ...payload, createdAt: new Date().toISOString() };
+    console.error('❌ Failed to send message:', err);
+    if (err.response?.data) {
+      console.error('Backend error details:', err.response.data);
+    }
+    throw err;
   }
 }
 
+export async function getChatMessages(chatId) {
+  if (!chatId) return [];
+  try {
+    const res = await safeFetch(`${BASE}/chats/${chatId}/messages`);
+    return Array.isArray(res) ? res : [];
+  } catch {
+    return [];
+  }
+}
+
+// ---- Users ----
 export async function fetchUserByEmail(email) {
   try {
-    const res = await safeFetch(`${BASE}/users?email=${encodeURIComponent(email)}`);
-    return res;
+    console.log('fetchUserByEmail - email:', email);
+    // auth routes are mounted at /user on the backend (see backend/index.js)
+    const url = `${API_ROOT}/user?email=${encodeURIComponent(email)}`;
+    const response = await safeFetch(url);
+    console.log('fetchUserByEmail response:', response);
+    return response;
   } catch (err) {
-    // Fallback: return basic user-like object
+    console.warn('fetchUserByEmail error:', err);
+    // Return a fallback user-like object so callers can continue (but we should not send this to backend)
     return { id: `u_${Date.now()}`, email, name: email.split('@')[0] };
   }
 }
 
-export default {
+export async function updateProfile(payload) {
+  return await safeFetch(`${BASE}/auth/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: payload,
+  });
+}
+
+// ✅ Clean, named export object
+const api = {
   fetchDoubts,
   postDoubt,
-  fetchChats,
+  getChats,
   createChat,
   createDoubt,
   sendMessage,
   fetchUserByEmail,
   updateProfile,
+  getChatMessages,
 };
+
+export default api;
