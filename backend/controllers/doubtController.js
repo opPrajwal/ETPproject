@@ -7,7 +7,12 @@ export const getDoubts = async (req, res) => {
   try {
     // Optionally filter by student via query param: ?student=<id>
     const filter = {};
-    if (req.query.student) filter.student = req.query.student;
+    if (req.query.student) {
+      filter.student = req.query.student;
+    } else if (req.user && req.user.typeOfUser === 'Student') {
+      filter.student = req.user._id;
+    }
+    
     const doubts = await Doubt.find(filter).sort({ createdAt: -1 }).lean();
     return res.json(doubts);
   } catch (err) {
