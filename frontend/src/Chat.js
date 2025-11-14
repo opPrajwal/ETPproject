@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from './contexts/UserContext';
 import './Chat.css';
-import { getChats, sendMessage, getChatMessages, createChat, fetchUserByEmail } from './api/api';
+import { getChats, sendMessage, getChatMessages, createChat, fetchUserByEmail, getChatById } from './api/api';
 
-const Chat = () => {
+const Chat = ({ chatId }) => {
   const { user } = useUser();
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -14,6 +14,7 @@ const Chat = () => {
   console.log("user ",useUser)
   useEffect(() => {
     const fetchChats = async () => {
+      if (chatId) return;
       try {
         const response = await getChats();
         setChats(response);
@@ -25,11 +26,30 @@ const Chat = () => {
     };
 
     fetchChats();
-  }, [user]);
+  }, [user, chatId]);
+
+  useEffect(() => {
+    const fetchChatAndMessages = async () => {
+      if (chatId) {
+        try {
+          const chat = await getChatById(chatId);
+          setSelectedChat(chat);
+          const response = await getChatMessages(chatId);
+          setMessages(response);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching chat and messages:', error);
+          setLoading(false);
+        }
+      }
+    };
+    fetchChatAndMessages();
+  }, [chatId]);
+
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (selectedChat) {
+      if (selectedChat && !chatId) {
         try {
           const response = await getChatMessages(selectedChat._id);
           setMessages(response);
@@ -40,7 +60,7 @@ const Chat = () => {
     };
 
     fetchMessages();
-  }, [selectedChat]);
+  }, [selectedChat, chatId]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -85,30 +105,32 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <div className="chat-list">
-        <h2>Chats</h2>
-        <div className="add-chat">
-          <input
-            type="email"
-            placeholder="Enter teacher email"
-            value={teacherEmail}
-            onChange={(e) => setTeacherEmail(e.target.value)}
-          />
-          <button onClick={handleCreateChat}>Start Chat</button>
-        </div>
-        {chats.map((chat) => (
-          <div
-            key={chat._id}
-            className={`chat-item ${selectedChat?._id === chat._id ? 'selected' : ''}`}
-            onClick={() => setSelectedChat(chat)}
-          >
-            {chat.chatName}
-            <div className="teacher-email">
-              {chat.teachers.map(teacher => teacher ? teacher.email : '').join(', ')}
-            </div>
+      {!chatId && (
+        <div className="chat-list">
+          <h2>Chats</h2>
+          <div className="add-chat">
+            <input
+              type="email"
+              placeholder="Enter teacher email"
+              value={teacherEmail}
+              onChange={(e) => setTeacherEmail(e.target.value)}
+            />
+            <button onClick={handleCreateChat}>Start Chat</button>
           </div>
-        ))}
-      </div>
+          {chats.map((chat) => (
+            <div
+              key={chat._id}
+              className={`chat-item ${selectedChat?._id === chat._id ? 'selected' : ''}`}
+              onClick={() => setSelectedChat(chat)}
+            >
+              {chat.chatName}
+              <div className="teacher-email">
+                {chat.teachers.map(teacher => teacher ? teacher.email : '').join(', ')}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="chat-window">
         {selectedChat ? (
           <>
@@ -138,7 +160,7 @@ const Chat = () => {
           </>
         ) : (
           <div className="no-chat-selected">
-            Select a chat to start messaging
+            {chatId ? 'Loading chat...' : 'Select a chat to start messaging'}
           </div>
         )}
       </div>

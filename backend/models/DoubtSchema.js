@@ -49,6 +49,10 @@ const DoubtSchema = new mongoose.Schema({
        aiReply: {
 	       type: String,
 	       default: ''
+       },
+       chat: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Chat'
        }
 }, {
 	timestamps: true

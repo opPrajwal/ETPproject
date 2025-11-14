@@ -124,6 +124,7 @@ const StudentDashboard = () => {
 
   // ===== Data Loading =====
   useEffect(() => {
+    console.log('StudentDashboard useEffect is running.'); // Added console.log
     mountedRef.current = true;
     const fetchUserData = async () => {
       try {
@@ -131,6 +132,7 @@ const StudentDashboard = () => {
       
 
         const fetchedDoubts = await api.fetchDoubts();
+        console.log('Student fetched doubts:', fetchedDoubts); // Log fetched doubts for student
         if (mountedRef.current && Array.isArray(fetchedDoubts)) {
           setDoubts(fetchedDoubts.reverse());
         }

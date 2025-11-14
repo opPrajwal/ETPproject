@@ -3,7 +3,7 @@ import "./Signup.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
+const SUBJECT_OPTIONS = ['Mathematics','Physics','Chemistry','Biology','English','Computer Science','History','Geography'];
 
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,10 +15,20 @@ function Signup() {
     confirmPassword: "",
     gender: "", 
     typeOfUser: "Student",
+    subjects: [],
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubjectChange = (subject) => {
+    setForm((prevForm) => {
+      const subjects = prevForm.subjects.includes(subject)
+        ? prevForm.subjects.filter((s) => s !== subject)
+        : [...prevForm.subjects, subject];
+      return { ...prevForm, subjects };
+    });
   };
 
   const handleSubmit = async(e) => {
@@ -39,7 +49,8 @@ function Signup() {
       email: form.email.trim().toLowerCase(),
       password: form.password,
       typeOfUser: form.typeOfUser,
-      ...(form.gender ? { gender: form.gender } : {})
+      ...(form.gender ? { gender: form.gender } : {}),
+      ...(form.typeOfUser === 'Teacher' ? { subjects: form.subjects } : {})
     };
 
     try {
@@ -51,11 +62,7 @@ function Signup() {
         }
         const data = response.data.data || {};
         if (data.typeOfUser === 'Teacher') {
-          if (!data.subjects || data.subjects.length === 0) {
-            navigate('/teacher-setup');
-          } else {
-            navigate('/teacher-dashboard');
-          }
+          navigate('/teacher-dashboard');
         } else {
           navigate('/student-dashboard');
         }
@@ -121,6 +128,20 @@ function Signup() {
             <option value="Student">Student</option>
             <option value="Teacher">Teacher</option>
           </select>
+
+          {form.typeOfUser === 'Teacher' && (
+            <div>
+              <label>Subjects</label>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:12}}>
+                {SUBJECT_OPTIONS.map(s=> (
+                  <label key={s} style={{display:'flex',alignItems:'center',gap:8}}>
+                    <input type='checkbox' checked={form.subjects.includes(s)} onChange={()=>handleSubjectChange(s)} />
+                    <span>{s}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <label>Password</label>
           <div className="password-container">

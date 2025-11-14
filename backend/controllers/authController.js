@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 export const signup = async (req, res) => {
     try {
-        const { name, email, password, gender, typeOfUser } = req.body;
+        const { name, email, password, gender, typeOfUser, subjects } = req.body;
 
         // Validate input
         if (!name || !email || !password || !typeOfUser) {
@@ -43,7 +43,8 @@ export const signup = async (req, res) => {
             email,
             password,
             gender,
-            typeOfUser
+            typeOfUser,
+            ...(typeOfUser === 'Teacher' && { subjects })
         });
 
         if (user) {
@@ -202,7 +203,8 @@ export const updateProfile = async (req, res) => {
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
-                gender: updatedUser.gender
+                gender: updatedUser.gender,
+                subjects: updatedUser.subjects
             }
         });
     } catch (error) {

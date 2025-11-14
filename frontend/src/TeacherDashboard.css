@@ -1,92 +1,165 @@
-
+/* 🌟 FULL PAGE BACKGROUND */
 .teacher-dashboard {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #f3e7ff, #e3f6ff);
+  background: linear-gradient(135deg, #a5f3fc, #93c5fd);
   min-height: 100vh;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.dashboard-container {
-  /* width: 100%; */
-  width: 1400px;
-  background: white;
-  border-radius: 15px;
-  padding: 30px;
-  overflow-y: auto;
-}
-
-
-.dashboard-header h1 {
-font-size: 2rem;
-font-weight: 700;
-color: #111827;
-}
-
-/* Header */
-.td-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.td-header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #3a0ca3;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-/* Profile Card */
-.teacher-profile {
   width: 100%;
-  /* max-width: 1000px; */
+  padding: 40px 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+/* 🌟 MAIN CONTAINER */
+.dashboard-container {
+  width: 100%;
+  max-width: 1400px;
   background: white;
   border-radius: 20px;
-  padding: 30px 25px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  margin-bottom: 40px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 40px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
 }
 
-.teacher-profile:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+/* 🌟 HEADER */
+.dashboard-header h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* 🌟 PROFILE CARD */
+.teacher-profile {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  margin-bottom: 35px;
+  transition: 0.2s ease;
 }
 
 .profile-main {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-bottom: 1.5px solid #eee;
-  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
   margin-bottom: 15px;
 }
 
 .profile-name {
   font-size: 1.4rem;
-  font-weight: 600;
-  color: #3a0ca3;
+  font-weight: 700;
+  color: #4f46e5;
 }
 
 .profile-email {
-  color: #5f65d9;
-  font-size: 1rem;
-}
-
-.profile-subjects {
-  color: #3f37c9;
-  font-weight: 500;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  color: #6b7280;
 }
 
 .profile-subjects span {
   display: inline-block;
-  background: #ede7ff;
-  color: #4b0082;
+  background: #eef2ff;
+  color: #4f46e5;
   padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  margin-right: 8px;
+  border-radius: 14px;
+  margin-right: 6px;
+  font-size: 0.85rem;
+}
+
+/* 🌟 NAVIGATION BUTTONS */
+.dashboard-navigation {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.nav-button {
+  flex: 1;
+  background: #e5e7eb;
+  padding: 12px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.nav-button.active {
+  background: #4f46e5;
+  color: white;
+}
+
+/* 🌟 GRID LAYOUT FOR DOUBTS */
+.doubts-section,
+.unassigned-doubts-section {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 25px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+/* 🌟 DOUBT CARD */
+.doubt-card {
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: 0.15s ease;
+}
+
+.doubt-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.doubt-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+  color: #1f2937;
+}
+
+.doubt-card p {
+  margin: 4px 0;
+  color: #4b5563;
+}
+
+.doubt-card button {
+  margin-top: 10px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.doubt-card button:hover {
+  background: #4338ca;
+}
+
+/* 🌟 CHAT VIEW */
+.chat-view {
+  margin-top: 20px;
+}
+
+.back-button {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: 600;
 }
