@@ -70,6 +70,7 @@ const StudentDashboard = () => {
 
     try {
       const saved = await api.postDoubt(payload);
+      console.log('📄 Saved doubt object:', saved);
       if (!mountedRef.current) return;
       setDoubts((prev) => [saved, ...prev]);
       setShowCreateDoubtForm(false);
@@ -127,7 +128,7 @@ const StudentDashboard = () => {
     const fetchUserData = async () => {
       try {
         const student = user;
-        if (!student || !student._id) return;
+      
 
         const fetchedDoubts = await api.fetchDoubts();
         if (mountedRef.current && Array.isArray(fetchedDoubts)) {
@@ -260,6 +261,12 @@ const StudentDashboard = () => {
                     </div>
                     <h3 className="doubt-title">{doubt.title}</h3>
                     <p className="doubt-desc">{doubt.description}</p>
+                    {doubt.aiReply && (
+                      <div className="ai-reply">
+                        <h4>AI Reply:</h4>
+                        <p>{doubt.aiReply}</p>
+                      </div>
+                    )}
                     <p className="timestamp">
                       <Clock className="icon-small" />{" "}
                       {doubt.createdAt || doubt.updatedAt || ""}
