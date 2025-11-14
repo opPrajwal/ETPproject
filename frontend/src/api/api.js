@@ -77,6 +77,25 @@ export async function postDoubt(payload) {
 // ✅ Alias for consistency
 export const createDoubt = postDoubt;
 
+export async function getUnassignedDoubts() {
+  try {
+    return await safeFetch(`${BASE}/doubts/unassigned`);
+  } catch {
+    return [];
+  }
+}
+
+export async function acceptDoubt(doubtId) {
+  try {
+    return await safeFetch(`${BASE}/doubts/${doubtId}/accept`, {
+      method: 'PUT',
+    });
+  } catch (err) {
+    console.error('Error accepting doubt:', err);
+    throw err;
+  }
+}
+
 // ---- Chats ----
 export async function getChats() {
   console.log('🔄 Fetching chats...', { url: `${BASE}/chats/getchats` });
@@ -169,6 +188,16 @@ export async function getChatMessages(chatId) {
   }
 }
 
+export async function getChatById(chatId) {
+  if (!chatId) return null;
+  try {
+    const res = await safeFetch(`${BASE}/chats/${chatId}`);
+    return res;
+  } catch {
+    return null;
+  }
+}
+
 // ---- Users ----
 export async function fetchUserByEmail(email) {
   try {
@@ -204,6 +233,9 @@ const api = {
   fetchUserByEmail,
   updateProfile,
   getChatMessages,
+  getChatById,
+  getUnassignedDoubts,
+  acceptDoubt,
 };
 
 export default api;
