@@ -122,23 +122,23 @@ const StudentDashboard = () => {
     );
   }
 
+  const fetchUserData = async () => {
+    try {
+      const student = user;
+    
+      const fetchedDoubts = await api.fetchDoubts();
+      console.log("fetched ",fetchedDoubts)
+      if (mountedRef.current && Array.isArray(fetchedDoubts)) {
+        setDoubts(fetchedDoubts.reverse());
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  };
+
   // ===== Data Loading =====
   useEffect(() => {
     mountedRef.current = true;
-    const fetchUserData = async () => {
-      try {
-        const student = user;
-      
-
-        const fetchedDoubts = await api.fetchDoubts();
-        if (mountedRef.current && Array.isArray(fetchedDoubts)) {
-          setDoubts(fetchedDoubts.reverse());
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-      }
-    };
-
     fetchUserData();
     return () => {
       mountedRef.current = false;
@@ -176,7 +176,10 @@ const StudentDashboard = () => {
         <div className="tab-buttons">
           <button
             className={`tab-btn ${activeTab === "doubts" ? "active" : ""}`}
-            onClick={() => setActiveTab("doubts")}
+            onClick={() => {
+              setActiveTab("doubts");
+              fetchUserData();
+            }}
           >
             <HelpCircle className="icon" /> Doubts
           </button>
