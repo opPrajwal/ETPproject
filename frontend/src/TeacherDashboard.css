@@ -1,7 +1,7 @@
 /* 🌟 FULL PAGE BACKGROUND */
 .teacher-dashboard {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #a5f3fc, #93c5fd);
+  /* background: linear-gradient(135deg, #a5f3fc, #93c5fd); */
   min-height: 100vh;
   width: 100%;
   padding: 40px 20px;
@@ -99,7 +99,8 @@
 /* 🌟 GRID LAYOUT FOR DOUBTS */
 .doubts-section,
 .unassigned-doubts-section {
-  width: 100%;
+  width: 1000px;
+  height: 300px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 25px;
@@ -163,3 +164,18 @@
   margin-bottom: 15px;
   font-weight: 600;
 }
+
+.no-doubts-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;   /* horizontally center */
+  margin-top: 200px;
+  margin-left: 10px;
+}
+
+.no-doubts-message {
+  font-size: 1.1rem;
+  color: #6b7280;
+  /* text-align: center; */
+}
+

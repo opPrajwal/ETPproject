@@ -222,6 +222,35 @@ export async function updateProfile(payload) {
   });
 }
 
+// ---- Chatbot ----
+export async function sendToBot({ message, history = [] } = {}) {
+  try {
+    // send to backend chatbot endpoint
+    const url = `${BASE}/chatbot/message`;
+    const body = { message, history };
+    const res = await safeFetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    // res expected: { success: true, data: { reply: '...' } }
+    if (res && res.data && res.data.reply) {
+      return res.data.reply;
+    }
+    if (res && res.reply) return res.reply;
+    return '';
+  } catch (err) {
+    console.error('sendToBot error', err);
+    return 'Sorry, the chatbot is unavailable right now.';
+  }
+}
+
+export async function ensureBotSession(ownerId) {
+  // optional stub — if you later want server-side sessions
+  return { sessionId: `session_${ownerId || 'anon'}` };
+}
+
+
 // ✅ Clean, named export object
 const api = {
   fetchDoubts,
@@ -236,6 +265,8 @@ const api = {
   getChatById,
   getUnassignedDoubts,
   acceptDoubt,
+  sendToBot,
+  ensureBotSession,
 };
 
 export default api;
