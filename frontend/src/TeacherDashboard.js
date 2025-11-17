@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './TeacherDashboard.css';
 import Chat from './Chat';
 import api from './api/api'; // Import the api module
+import { AlignCenter } from 'lucide-react';
+import ChatbotWidget from './ChatbotWidget';
 
 export default function TeacherDashboard() {
   const [profile, setProfile] = useState(null);
@@ -187,7 +189,11 @@ export default function TeacherDashboard() {
                 </div>
               ))
             ) : (
-              <p>No unassigned doubts in your subjects.</p>
+              <div className="no-doubts-wrapper">
+  <p className="no-doubts-message">No unassigned doubts in your subjects.</p>
+</div>
+
+
             )}
           </div>
         )}
@@ -198,6 +204,8 @@ export default function TeacherDashboard() {
             <Chat /> {/* Render Chat component without chatId prop for general chat list */}
           </div>
         )}
+
+        <ChatbotWidget />
       </div>
     </div>
   );

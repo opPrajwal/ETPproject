@@ -5,6 +5,7 @@ import { MessageCircle, HelpCircle, Clock, User } from "lucide-react";
 import api from "./api/api";
 import { useUser } from "./contexts/UserContext";
 import Chat from "./Chat";
+import ChatbotWidget from './ChatbotWidget'; // adjust path as needed
 
 const SUBJECT_OPTIONS = [
   "Mathematics",
@@ -304,6 +305,8 @@ const StudentDashboard = () => {
             {studyPlan?.error && <p className="error">{studyPlan.error}</p>}
           </section>
         )}
+
+        <ChatbotWidget />
       </div>
     </div>
   );

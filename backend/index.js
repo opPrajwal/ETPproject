@@ -6,6 +6,7 @@ import DoubtRoutes from './routes/doubtRoutes.js'
 import ChatRoutes from './routes/chatRoutes.js'
 import dbconnection from "./database/connection.js"
 import cors from 'cors'
+import ChatbotRoutes from './routes/chatbotRoutes.js';
 
 // Load environment variables
 dotenv.config()
@@ -48,3 +49,5 @@ app.use('/user',UserRoutes)
 app.use('/api/doubts', DoubtRoutes)
 // mount chat routes
 app.use('/api/chats', ChatRoutes)
+
+app.use('/api/chatbot', ChatbotRoutes);
