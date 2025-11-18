@@ -1,41 +1,41 @@
-import axios from 'axios';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+dotenv.config();
 
-export async function getGeminiReply(prompt) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not set in environment');
+console.log("🔧 [Gemini] Initializing with API key:", 
+  process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 10)}...` : "NOT SET"
+);
 
-  const url =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-  const headers = { 'Content-Type': 'application/json' };
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-  // System instruction to make responses plain and precise
-  const systemInstruction = `
-You are a clear and concise AI assistant.
-Respond in plain text only.
-Do not use any special characters, symbols, markdown, or formatting.
-Avoid lists, bullet points, bold text, or code formatting.
-Keep the answer short, precise, and directly related to the question.
-`;
-
-  const data = {
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          { text: `${systemInstruction}\n\nUser question:\n${prompt}` },
-        ],
-      },
-    ],
-  };
-
+export const getGeminiReply = async (systemPrompt, userMessage) => {
   try {
-    const res = await axios.post(`${url}?key=${GEMINI_API_KEY}`, data, { headers });
-    return (
-      res.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      'No reply from Gemini AI.'
-    );
-  } catch (err) {
-    console.error('Gemini API error', err?.response?.data || err);
-    return 'AI could not generate a reply at this time.';
+    console.log("🤖 [Gemini] Getting reply");
+    console.log("  System prompt length:", systemPrompt.length);
+    console.log("  User message:", userMessage);
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+    });
+
+    console.log("✅ [Gemini] Model created successfully");
+
+    // Combine system prompt and user message
+    const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}`;
+    console.log("🚀 [Gemini] Calling generateContent with combined prompt");
+
+    const result = await model.generateContent(fullPrompt);
+
+    console.log("✅ [Gemini] Response received");
+
+    const text = result.response.text();
+    console.log("✅ [Gemini] Text extracted, length:", text.length);
+
+    return text;
+
+  } catch (error) {
+    console.error("❌ [Gemini] Error occurred:", error.message);
+    console.error("📍 [Gemini] Full error:", error);
+    throw error;
   }
-}
+};
