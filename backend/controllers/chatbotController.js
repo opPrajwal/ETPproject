@@ -1,11 +1,5 @@
 // backend/controllers/chatbotController.js
-import axios from 'axios';
-
-const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
-
-if (!OPENAI_KEY) {
-  console.warn('⚠️ OPENAI_API_KEY not set. Chatbot will return fallback replies.');
-}
+import { getGeminiReply } from '../utils/gemini.js';
 
 const SYSTEM_PROMPT = `You are "TutorBot", a friendly assistant for the website. 
 - Answer concisely and politely.
@@ -20,61 +14,46 @@ const SYSTEM_PROMPT = `You are "TutorBot", a friendly assistant for the website.
  */
 export async function postMessage(req, res) {
   try {
+    console.log("📨 [ChatbotController] Received request");
+    console.log("📦 [ChatbotController] Body:", JSON.stringify(req.body, null, 2));
+    
     const { message, history } = req.body;
     if (!message || typeof message !== 'string') {
+      console.warn("⚠️ [ChatbotController] Invalid message:", message);
       return res.status(400).json({ success: false, message: 'message required' });
     }
 
-    // If no key, fallback simple rules
-    if (!OPENAI_KEY) {
-      // Simple rule-based fallback
-      const t = message.toLowerCase();
-      if (t.includes('help') || t.includes('how to use') || t.includes('how do i')) {
-        return res.json({
-          success: true,
-          data: {
-            reply: "Welcome! To use the site: 1) Signup or Login. 2) Use the dashboard to raise doubts, create chats, or access resources. For more, click 'Help' in the top menu."
-          }
-        });
-      }
-      if (t.includes('contact') || t.includes('support')) {
-        return res.json({
-          success: true,
-          data: { reply: "You can contact support by emailing support@example.com or using the contact form on the Contact page." }
-        });
-      }
-      return res.json({ success: true, data: { reply: `TutorBot (offline mode) heard: "${message}" — try asking "How to use the website?"` } });
+    console.log("✅ [ChatbotController] Message validated:", message.substring(0, 50) + "...");
+    console.log("📜 [ChatbotController] History items:", history?.length || 0);
+
+    // Build conversation context from history
+    let conversationContext = '';
+    if (history && Array.isArray(history) && history.length > 0) {
+      console.log("📝 [ChatbotController] Adding history to context");
+      conversationContext = '\n\nPrevious conversation:\n';
+      history.forEach((msg, idx) => {
+        const role = msg.role === 'user' ? 'User' : 'Assistant';
+        conversationContext += `${role}: ${msg.content}\n`;
+        console.log(`  [${idx + 1}] ${role}: ${msg.content.substring(0, 40)}...`);
+      });
     }
 
-    // Build messages for OpenAI (system + optional history + user)
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      // include any short history provided
-      ...(Array.isArray(history) ? history.map(h => ({ role: h.role, content: h.content })) : []),
-      { role: 'user', content: message },
-    ];
+    // Build full user message with conversation history
+    const fullUserMessage = conversationContext ? `${conversationContext}\nUser: ${message}` : message;
+    
+    console.log("🔧 [ChatbotController] Full message to send:");
+    console.log("  System prompt length:", SYSTEM_PROMPT.length);
+    console.log("  User message length:", fullUserMessage.length);
 
-    // Choose model - you can change to gpt-4o or gpt-4 if you have access
-    const payload = {
-      model: 'gpt-4o-mini', // change if you prefer another model
-      messages,
-      temperature: 0.2,
-      max_tokens: 600,
-    };
+    // Get reply from Gemini
+    console.log("🚀 [ChatbotController] Calling getGeminiReply...");
+    const botText = await getGeminiReply(SYSTEM_PROMPT, fullUserMessage);
 
-    const url = 'https://api.openai.com/v1/chat/completions';
-    const resp = await axios.post(url, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_KEY}`,
-      },
-      timeout: 30_000,
-    });
-
-    const botText = resp?.data?.choices?.[0]?.message?.content || "Sorry, I couldn't generate a reply.";
+    console.log("✅ [ChatbotController] Got response from Gemini, length:", botText.length);
     return res.json({ success: true, data: { reply: botText } });
   } catch (err) {
-    console.error('chatbot error', err?.response?.data || err.message || err);
+    console.error('❌ [ChatbotController] Error occurred:', err.message || err);
+    console.error('📍 [ChatbotController] Full error:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 }
